@@ -7,6 +7,7 @@ import dotenv from "dotenv";
 import errorHandler from "./utils/errorHandler.js";
 import morgan from "morgan";
 import health from "./routes/health.js";
+import userRouter from "./routes/userRouter.js";
 
 //env config
 dotenv.config();
@@ -16,11 +17,12 @@ const MONGO_URI = process.env.MONGO_URI;
 //set app
 const app = express();
 app.listen(PORT, () => {
-  console.log(`The server is running on ${PORT}`);
+    console.log(`The server is running on ${PORT}`);
 });
 
 //logging
-app.use(morgan(process.env.NODE_ENV));
+if (process.env.NODE_ENV === "development") app.use(morgan("dev"));
+else if (process.env.NODE_ENV === "production") app.use(morgan("combined"));
 
 //middlewares
 app.use(helmet());
@@ -30,16 +32,17 @@ app.use(express.urlencoded());
 
 //db connection
 mongoose
-  .connect(MONGO_URI)
-  .then(() => {
-    console.log("db connected....");
-  })
-  .catch((err) => {
-    console.log(err.message);
-    process.exit(1);
-  });
+    .connect(MONGO_URI)
+    .then(() => {
+        console.log("db connected....");
+    })
+    .catch((err) => {
+        console.log(err.message);
+        process.exit(1);
+    });
 
 //routers
-app.use(health);
+app.use(health); //for test
+app.use("/api/users", userRouter);
 //err handler
 app.use(errorHandler);
