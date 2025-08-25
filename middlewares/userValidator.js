@@ -12,7 +12,7 @@ const schema = {
         },
         email: {
             type: "string",
-            // pattern: ".+@.+/..+",
+            pattern: ".+@.+/..+",
         },
         password: {
             type: "string",

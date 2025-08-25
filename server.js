@@ -8,6 +8,7 @@ import errorHandler from "./utils/errorHandler.js";
 import morgan from "morgan";
 import health from "./routes/health.js";
 import userRouter from "./routes/userRouter.js";
+import taskRouter from "./routes/taskRouter.js";
 
 //env config
 dotenv.config();
@@ -44,5 +45,6 @@ mongoose
 //routers
 app.use(health); //for test
 app.use("/api/users", userRouter);
+app.use("/api/tasks", taskRouter);
 //err handler
 app.use(errorHandler);

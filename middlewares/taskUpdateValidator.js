@@ -18,7 +18,6 @@ const schema = {
             default: "pending",
         },
     },
-    required: ["title"],
     additionalProperties: false,
 };
 

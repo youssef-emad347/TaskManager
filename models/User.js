@@ -1,32 +1,36 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 
-const userSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: true,
-        minLength: 2,
-        maxLength: 50,
+const userSchema = new mongoose.Schema(
+    {
+        name: {
+            type: String,
+            required: true,
+            minLength: 2,
+            maxLength: 50,
+        },
+        email: {
+            type: String,
+            required: true,
+            unique: true,
+            match: /^.+@.+\..+$/,
+            lowercase: true,
+        },
+        password: {
+            type: String,
+            required: true,
+            minLength: 6,
+            select: false,
+        },
+        isAdmin: {
+            type: Boolean,
+            default: false,
+        },
+        passwordResetToken: { type: String, select: false },
+        passwordResetTokenExpireIn: { type: Date, select: false },
     },
-    email: {
-        type: String,
-        required: true,
-        unique: true,
-        pattern: ".+@.+..+",
-    },
-    password: {
-        type: String,
-        required: true,
-        minLength: 6,
-        select: false,
-    },
-    isAdmin: {
-        type: Boolean,
-        default: false,
-    },
-    passwordResetToken: { type: String, select: false },
-    passwordResetTokenExpireIn: { type: Date, select: false },
-});
+    { timestamps: true }
+);
 
 userSchema.pre("save", async function (next) {
     // console.log(this);
