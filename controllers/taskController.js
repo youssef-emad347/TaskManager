@@ -1,6 +1,7 @@
 import catchAsync from "../utils/catchAsync.js";
 import Task from "../models/Task.js";
 import AppError from "../utils/AppError.js";
+import QueryFeatures from "../utils//QueryFeatures.js";
 
 const createTask = catchAsync(async (req, res, next) => {
     const task = new Task({ ...req.body, userId: req.user._id });
@@ -14,11 +15,11 @@ const createTask = catchAsync(async (req, res, next) => {
 });
 
 const deleteTask = catchAsync(async (req, res, next) => {
-    const task = await Task.findById(req.params.id);
+    const task = await Task.findOne({
+        userId: req.user._id,
+        _id: req.params.id,
+    });
     if (!task) return next(new AppError(404, "task not found"));
-    if (String(req.user._id) !== String(task.userId)) {
-        return next(new AppError(400, "you are not allowed"));
-    }
     await task.deleteOne();
     res.status(200).json({
         status: "success",
@@ -27,10 +28,11 @@ const deleteTask = catchAsync(async (req, res, next) => {
 });
 
 const updateTask = catchAsync(async (req, res, next) => {
-    let task = await Task.findById(req.params.id);
+    let task = await Task.findOne({
+        userId: req.user._id,
+        _id: req.params.id,
+    });
     if (!task) return next(new AppError(404, "task not found"));
-    if (String(req.user._id) !== String(task.userId))
-        return next(new AppError(400, "you are not allowed"));
     task.title = req.body.title || task.title;
     task.description = req.body.description || task.description;
     task.status = req.body.status || task.status;
@@ -43,39 +45,33 @@ const updateTask = catchAsync(async (req, res, next) => {
 });
 
 const getTasks = catchAsync(async (req, res, next) => {
-    const { search, page = 1, limit = 10, ...filters } = req.query;
-    const query = { ...filters };
-    if (search) {
-        query.$or = [
-            { title: { $regex: search, $options: "i" } },
-            { description: { $regex: search, $options: "i" } },
-        ];
-    }
-    const tasks = await Task.find({ userId: req.user._id, ...query })
-        .skip(req.pagination.skip)
-        .limit(req.pagination.limit);
-    console.log("tasks fetched");
-    if (!tasks || tasks.length === 0)
-        return next(new AppError(404, "no tasks exists"));
-    const totalCount = await Task.countDocuments({
-        userId: req.user._id,
-        ...query,
-    });
+    const features = new QueryFeatures(
+        Task.find({ userId: req.user._id }),
+        req.query
+    ).filter();
+    const totalCount = await Task.countDocuments(features.query.getFilter());
+
+    const finalFeatures = features.sort().paginate();
+
+    const tasks = await finalFeatures.query;
+
+    // 5. Send the response
     res.status(200).json({
         status: "success",
         message: "task fetched",
-        page,
-        limit,
+        page: finalFeatures.page,
+        limit: finalFeatures.limit,
         totalCount,
         tasks,
     });
 });
 
 const getTaskById = catchAsync(async (req, res, next) => {
-    const task = await Task.findById(req.params.id);
+    const task = await Task.findOne({
+        userId: req.user._id,
+        _id: req.params.id,
+    });
     if (!task) return next(new AppError(404, "task not exist"));
-    if (String(req.user._id) !== String(task.userId))
-        return next(new AppError(400, "you are not allowed"));
     res.status(200).json({
         status: "success",
         message: "task fetched",

@@ -9,6 +9,8 @@ import morgan from "morgan";
 import health from "./routes/health.js";
 import userRouter from "./routes/userRouter.js";
 import taskRouter from "./routes/taskRouter.js";
+import swaggerUi from "swagger-ui-express";
+import swaggerFile from "./swagger-output.json" with { type: "json" };
 
 //env config
 dotenv.config();
@@ -19,6 +21,7 @@ const MONGO_URI = process.env.MONGO_URI;
 const app = express();
 app.listen(PORT, () => {
     console.log(`The server is running on ${PORT}`);
+    console.log(`Swagger docs at http://localhost:5000/api-docs`);
 });
 
 //logging
@@ -42,9 +45,13 @@ mongoose
         process.exit(1);
     });
 
+// Swagger docs
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerFile));
+
 //routers
 app.use(health); //for test
 app.use("/api/users", userRouter);
 app.use("/api/tasks", taskRouter);
+
 //err handler
 app.use(errorHandler);

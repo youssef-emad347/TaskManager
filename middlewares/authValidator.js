@@ -1,13 +1,17 @@
-import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import AppError from "../utils/AppError.js";
+import catchAsync from "../utils/catchAsync.js";
+import { verifyToken } from "../utils/jwt.js";
 
-export default async (req, res, next) => {
-    let token = req.headers.auth;
-    token = token.split(" ")[1];
+export default catchAsync(async (req, res, next) => {
+    let token;
+    if (req.headers.auth && req.headers.auth.startsWith("Bearer"))
+        token = req.headers.auth.split(" ")[1];
     if (!token) return next(new AppError(401, "you are unauthorized"));
-    const id = jwt.verify(token, process.env.JWT_SECRET).id;
-    const userData = await User.findOne({ _id: id });
-    req.user = userData; // for future use
+    const decoded = verifyToken(token);
+    const currentUser = await User.findOne({ _id: decoded.id });
+    if (!currentUser)
+        return next(new AppError(401, "the user no longer exits"));
+    req.user = currentUser; // for future use
     next();
-};
+});

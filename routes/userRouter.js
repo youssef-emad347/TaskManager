@@ -9,24 +9,27 @@ import {
     deleteUser,
     getProfile,
 } from "../controllers/userController.js";
-import userValidator from "../middlewares/userValidator.js";
-import userUpdateValidator from "../middlewares/userUpdateValidator.js";
+import {
+    validateUserCreate,
+    validateUserUpdate,
+} from "../validators/user.validator.js";
+import validator from "../middlewares/validator.js";
 import authValidator from "../middlewares/authValidator.js";
 
 const router = express.Router();
 
 router.get("/profile", authValidator, getProfile);
-router.post("/register", userValidator, registerUser);
+router.post("/register", validator(validateUserCreate), registerUser);
 router.post("/login", loginUser);
 router.put(
     "/update-profile",
-    userUpdateValidator,
+    validator(validateUserUpdate),
     authValidator,
     updateProfile
 );
 router.put("/forget-password", forgetPassword);
 router.patch("/update-password", authValidator, updatePassword);
 router.patch("/reset-password", resetPassword);
-router.delete("/delete{/:id}", deleteUser);
+router.delete("/delete", deleteUser);
 
 export default router;
