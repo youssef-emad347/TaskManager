@@ -7,7 +7,7 @@ const createTask = catchAsync(async (req, res, next) => {
     const task = new Task({ ...req.body, userId: req.user._id });
     if (!task) return next(new AppError(400, "undefined task"));
     await task.save();
-    res.status(200).json({
+    res.status(201).json({
         status: "success",
         message: "task created successfully",
         task: task,
@@ -21,7 +21,7 @@ const deleteTask = catchAsync(async (req, res, next) => {
     });
     if (!task) return next(new AppError(404, "task not found"));
     await task.deleteOne();
-    res.status(200).json({
+    res.status(204).json({
         status: "success",
         message: "task deleted successfully",
     });
@@ -55,7 +55,6 @@ const getTasks = catchAsync(async (req, res, next) => {
 
     const tasks = await finalFeatures.query;
 
-    // 5. Send the response
     res.status(200).json({
         status: "success",
         message: "task fetched",

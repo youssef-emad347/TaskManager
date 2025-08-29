@@ -24,17 +24,19 @@ const taskCreateSchema = {
 const taskUpdateSchema = {
     type: "object",
     properties: {
-        name: {
+        title: {
             type: "string",
-            minLength: 2,
-            maxLength: 50,
+            maxLength: 100,
         },
-        email: {
+        description: {
             type: "string",
-            pattern: ".+@.+..+",
+        },
+        status: {
+            type: "string",
+            enum: ["pending", "in-progress", "completed"],
+            default: "pending",
         },
     },
-    required: ["name", "email"],
     additionalProperties: false,
 };
 export const validateTaskCreate = ajv.compile(taskCreateSchema);

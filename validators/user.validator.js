@@ -34,7 +34,6 @@ const userUpdateSchema = {
             pattern: ".+@.+..+",
         },
     },
-    required: ["name", "email"],
     additionalProperties: false,
 };
 

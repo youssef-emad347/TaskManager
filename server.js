@@ -10,7 +10,7 @@ import health from "./routes/health.js";
 import userRouter from "./routes/userRouter.js";
 import taskRouter from "./routes/taskRouter.js";
 import swaggerUi from "swagger-ui-express";
-import swaggerFile from "./swagger-output.json" with { type: "json" };
+import swaggerSpec from "./swagger.js";
 
 //env config
 dotenv.config();
@@ -21,7 +21,7 @@ const MONGO_URI = process.env.MONGO_URI;
 const app = express();
 app.listen(PORT, () => {
     console.log(`The server is running on ${PORT}`);
-    console.log(`Swagger docs at http://localhost:5000/api-docs`);
+    console.log(`Swagger docs at http://localhost:${PORT}/api-docs`);
 });
 
 //logging
@@ -46,7 +46,7 @@ mongoose
     });
 
 // Swagger docs
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerFile));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 //routers
 app.use(health); //for test

@@ -1,17 +1,42 @@
-import swaggerAutogen from "swagger-autogen";
+import swaggerJSDoc from "swagger-jsdoc";
 
-const doc = {
+const swaggerDefinition = {
+    openapi: "3.0.0",
     info: {
-        title: "My API",
-        description: "Description",
+        title: "Task Manager API",
+        version: "1.0.0",
+        description: "API for managing tasks and users.",
     },
-    host: "localhost:3000",
+    tags: [
+        {
+            name: "Users",
+            description: "Operations about users",
+        },
+        {
+            name: "Tasks",
+            description: "Operations about tasks",
+        },
+    ],
+    servers: [
+        {
+            url: `http://localhost:3000`,
+            description: "Development server",
+        },
+    ],
+    components: {
+        securitySchemes: {
+            bearerAuth: {
+                type: "http",
+                scheme: "bearer",
+                bearerFormat: "JWT", // optional, but nice for clarity
+            },
+        },
+    },
 };
 
-const outputFile = "./swagger-output.json";
-const routes = ["./server.js"];
+const options = {
+    swaggerDefinition,
+    apis: ["./routes/*.js"],
+};
 
-/* NOTE: If you are using the express Router, you must pass in the 'routes' only the 
-root file where the route starts, such as index.js, app.js, routes.js, etc ... */
-
-swaggerAutogen()(outputFile, routes, doc);
+export default swaggerJSDoc(options);
