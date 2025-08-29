@@ -30,7 +30,16 @@ else if (process.env.NODE_ENV === "production") app.use(morgan("combined"));
 
 //middlewares
 app.use(helmet());
-app.use(cors());
+app.use(
+    cors({
+        origin:
+            process.env.NODE_ENV === "production"
+                ? "https://task-tanager-api.vercel.app/" // Or '*' for testing
+                : `http://localhost:${PORT}`, // Adjust for your frontend port
+        credentials: true,
+        allowedHeaders: ["*"],
+    })
+);
 app.use(express.json());
 app.use(express.urlencoded());
 
