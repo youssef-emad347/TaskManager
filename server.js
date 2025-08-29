@@ -46,7 +46,7 @@ mongoose
     });
 
 // Swagger docs
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use("/", swaggerUi.serve, swaggerUi.setup(swaggerSpec, { explorer: true }));
 
 //routers
 app.use(health); //for test
