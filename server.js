@@ -59,7 +59,7 @@ const CSS_URL =
     "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.1.0/swagger-ui.min.css";
 
 app.use(
-    "/",
+    "/api-docs",
     swaggerUi.serve,
     swaggerUi.setup(swaggerSpec, {
         customCss:
@@ -69,6 +69,9 @@ app.use(
 );
 
 //routers
+app.get("/", (req, res) => {
+    res.redirect("/api-docs");
+});
 app.use(health); //for test
 app.use("/api/users", userRouter);
 app.use("/api/tasks", taskRouter);
