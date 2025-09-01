@@ -25,6 +25,7 @@ const loginUser = catchAsync(async (req, res, next) => {
     const user = await User.findOne({ email: req.body.email }).select(
         "+password"
     );
+    if (!user) return next(new AppError(404, "user not found"));
     const valid = await bcrypt.compare(req.body.password, user.password);
     if (!valid)
         return next(new AppError(401, "your email or password is wrong"));
@@ -42,6 +43,7 @@ const getProfile = catchAsync(async (req, res, next) => {
         email: req.user.email,
         isAdmin: req.user.isAdmin,
     };
+    if (!user) return next(new AppError(401, "you are unauthorized"));
     res.status(200).json({
         status: "success",
         message: "profile retrieved successfully",
@@ -51,6 +53,7 @@ const getProfile = catchAsync(async (req, res, next) => {
 
 const updateProfile = catchAsync(async (req, res, next) => {
     const user = req.user;
+    if (!user) return next(new AppError(401, "you are unauthorized"));
     [user.name, user.email] = [
         req.body.name || user.name,
         req.body.email || user.email,
